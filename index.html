@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#F2F2F7" />
+  <title>Website & Domain Client Intake</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','"SF Pro Text"','system-ui','"Segoe UI"','Roboto','sans-serif'] },
+          colors: { ios: { bg:'#F2F2F7', blue:'#007AFF', gray:'#8E8E93', sep:'#C6C6C8', red:'#FF3B30', green:'#34C759' } }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { -webkit-tap-highlight-color: transparent; }
+    body { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+    .step { display:none; }
+    .step.active { display:block; animation: slideIn .35s cubic-bezier(.25,.8,.25,1); }
+    .step.active.back { animation: slideInBack .35s cubic-bezier(.25,.8,.25,1); }
+    @keyframes slideIn { from { opacity:0; transform:translateX(24px);} to { opacity:1; transform:none; } }
+    @keyframes slideInBack { from { opacity:0; transform:translateX(-24px);} to { opacity:1; transform:none; } }
+    .field { width:100%; min-height:44px; padding:12px 14px; border-radius:12px; background:#fff; border:1px solid #E5E5EA; font-size:16px; outline:none; transition:border-color .2s, box-shadow .2s; -webkit-appearance:none; appearance:none; }
+    .field:focus { border-color:#007AFF; box-shadow:0 0 0 4px rgba(0,122,255,.15); }
+    .field.invalid { border-color:#FF3B30; box-shadow:0 0 0 4px rgba(255,59,48,.12); }
+    select.field { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238E8E93' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+    .choice { display:flex; align-items:center; gap:12px; min-height:48px; padding:10px 14px; background:#fff; border:1px solid #E5E5EA; border-radius:12px; cursor:pointer; transition:all .15s; }
+    .choice:active { transform:scale(.98); }
+    .choice:has(input:checked) { border-color:#007AFF; background:#EAF3FF; }
+    .choice input { width:20px; height:20px; accent-color:#007AFF; flex-shrink:0; }
+    .label { display:block; font-size:13px; font-weight:600; color:#3C3C43; margin:0 0 6px 4px; text-transform:uppercase; letter-spacing:.02em; }
+    .error-msg { color:#FF3B30; font-size:13px; margin:6px 0 0 4px; display:none; }
+    .error-msg.show { display:block; }
+    .branch { overflow:hidden; transition:max-height .4s ease, opacity .3s ease; max-height:0; opacity:0; }
+    .branch.open { max-height:900px; opacity:1; }
+  </style>
+</head>
+<body class="bg-ios-bg font-sans text-black antialiased">
+
+  <!-- Header / Progress -->
+  <header class="sticky top-0 z-30 bg-ios-bg/80 backdrop-blur-xl border-b border-black/5" style="padding-top:env(safe-area-inset-top)">
+    <div class="max-w-xl mx-auto px-5 pt-4 pb-3">
+      <h1 class="text-[28px] font-bold tracking-tight">Client Intake</h1>
+      <div class="flex justify-between items-center mt-1 text-[13px] text-ios-gray">
+        <span id="stepLabel">Step 1 of 5</span>
+        <span id="pctLabel">20% Complete</span>
+      </div>
+      <div class="mt-2 h-1.5 w-full bg-black/10 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-ios-blue rounded-full transition-all duration-500 ease-out" style="width:20%"></div>
+      </div>
+      <div class="flex justify-between mt-3" id="dots"></div>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 pt-5">
+    <form id="intakeForm" action="https://formsubmit.co/bastapapi@icloud.com" method="POST" enctype="multipart/form-data" novalidate>
+      <!-- FormSubmit config -->
+      <input type="hidden" name="_subject" value="New Client Website & Domain Intake Submission!" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+      <input type="hidden" name="_next" id="nextUrl" />
+
+      <!-- STEP 1 -->
+      <section class="step active" data-step="1">
+        <h2 class="text-xl font-semibold mb-1">Contact Information</h2>
+        <p class="text-ios-gray text-[15px] mb-5">Let's start with how to reach you.</p>
+        <div class="bg-white/60 rounded-2xl p-4 shadow-sm space-y-4 border border-black/5">
+          <div><label class="label" for="fullName">Full Name *</label>
+            <input id="fullName" class="field" type="text" name="Full Name" autocomplete="name" required placeholder="Jane Appleseed" />
+            <p class="error-msg">Please enter your full name.</p></div>
+          <div><label class="label" for="bizName">Business / Brand Name *</label>
+            <input id="bizName" class="field" type="text" name="Business Name" autocomplete="organization" required placeholder="Arcadia Salons" />
+            <p class="error-msg">Please enter your business or brand name.</p></div>
+          <div><label class="label" for="email">Email Address *</label>
+            <input id="email" class="field" type="email" name="Email" autocomplete="email" inputmode="email" required placeholder="you@example.com" />
+            <p class="error-msg">Please enter a valid email address.</p></div>
+          <div><label class="label" for="phone">Phone Number *</label>
+            <input id="phone" class="field" type="tel" name="Phone" autocomplete="tel" inputmode="tel" required placeholder="(555) 123-4567" pattern="[0-9()+\-\s.]{7,}" />
+            <p class="error-msg">Please enter a valid phone number.</p></div>
+          <div><span class="label">Best Way to Reach You</span>
+            <div class="grid gap-2">
+              <label class="choice"><input type="checkbox" name="Preferred Contact" value="Text/SMS" />Text / SMS</label>
+              <label class="choice"><input type="checkbox" name="Preferred Contact" value="Email" />Email</label>
+              <label class="choice"><input type="checkbox" name="Preferred Contact" value="Phone Call" />Phone Call</label>
+            </div></div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step" data-step="2">
+        <h2 class="text-xl font-semibold mb-1">Domain Setup</h2>
+        <p class="text-ios-gray text-[15px] mb-5">Tell us about your web address.</p>
+        <div class="bg-white/60 rounded-2xl p-4 shadow-sm space-y-4 border border-black/5">
+          <div data-group="Owns Domain"><span class="label">Do you already own a domain? *</span>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="choice justify-center"><input type="radio" name="Owns Domain" value="Yes" required />Yes</label>
+              <label class="choice justify-center"><input type="radio" name="Owns Domain" value="No" />No</label>
+            </div>
+            <p class="error-msg">Please choose Yes or No.</p></div>
+
+          <!-- YES branch -->
+          <div id="branchYes" class="branch space-y-4" aria-hidden="true">
+            <div><label class="label" for="curDomain">Current Domain Name *</label>
+              <input id="curDomain" class="field" type="text" name="Current Domain" data-req-branch placeholder="mybusiness.com" autocapitalize="none" disabled />
+              <p class="error-msg">Please enter a valid domain (e.g. mybusiness.com).</p></div>
+            <div><label class="label" for="registrar">Domain Registrar</label>
+              <select id="registrar" class="field" name="Registrar" disabled>
+                <option value="">Select registrar…</option>
+                <option>GoDaddy</option><option>Namecheap</option><option>Google/Squarespace</option><option>Bluehost</option><option>Other</option>
+              </select></div>
+            <div><label class="label" for="access">Access Details</label>
+              <textarea id="access" class="field" rows="3" name="Domain Access Info" placeholder="Registrar login or delegate access instructions (we recommend adding us as a delegate rather than sharing passwords)." disabled></textarea></div>
+          </div>
+
+          <!-- NO branch -->
+          <div id="branchNo" class="branch space-y-4" aria-hidden="true">
+            <div><label class="label" for="pd1">Preferred Domain #1 *</label>
+              <input id="pd1" class="field" type="text" name="Preferred Domain 1" data-req-branch placeholder="mybrand.com" autocapitalize="none" disabled />
+              <p class="error-msg">Please enter at least one domain idea (e.g. mybrand.com).</p></div>
+            <div><label class="label" for="pd2">Preferred Domain #2</label>
+              <input id="pd2" class="field" type="text" name="Preferred Domain 2" placeholder="mybrand.co" autocapitalize="none" disabled /></div>
+            <div><label class="label" for="pd3">Preferred Domain #3</label>
+              <input id="pd3" class="field" type="text" name="Preferred Domain 3" placeholder="getmybrand.com" autocapitalize="none" disabled /></div>
+            <label class="choice"><input type="checkbox" name="Manage Domain Request" value="Yes - register and manage on my behalf" disabled />Please register and manage this domain on my behalf</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step" data-step="3">
+        <h2 class="text-xl font-semibold mb-1">Website Goals & Pages</h2>
+        <p class="text-ios-gray text-[15px] mb-5">What should your site accomplish?</p>
+        <div class="bg-white/60 rounded-2xl p-4 shadow-sm space-y-4 border border-black/5">
+          <div><label class="label" for="goal">Primary Website Goal *</label>
+            <select id="goal" class="field" name="Primary Goal" required>
+              <option value="">Choose a goal…</option>
+              <option>Sell Products</option><option>Book Appointments</option><option>Capture Leads</option><option>Portfolio</option><option>Other</option>
+            </select>
+            <p class="error-msg">Please select your primary goal.</p></div>
+          <div data-group="Pages Needed" data-min="1"><span class="label">Required Pages *</span>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Home" checked />Home</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="About" />About</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Services/Pricing" />Services / Pricing</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Portfolio/Gallery" />Portfolio / Gallery</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Blog" />Blog</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Contact" />Contact</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="Store/Shop" />Store / Shop</label>
+              <label class="choice"><input type="checkbox" name="Pages Needed" value="FAQ" />FAQ</label>
+            </div>
+            <p class="error-msg">Please select at least one page.</p></div>
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step" data-step="4">
+        <h2 class="text-xl font-semibold mb-1">Branding & Style</h2>
+        <p class="text-ios-gray text-[15px] mb-5">Help us capture your look and feel.</p>
+        <div class="bg-white/60 rounded-2xl p-4 shadow-sm space-y-4 border border-black/5">
+          <div data-group="Has Logo"><span class="label">Do you have an existing logo? *</span>
+            <div class="grid gap-2">
+              <label class="choice"><input type="radio" name="Has Logo" value="Yes" required />Yes</label>
+              <label class="choice"><input type="radio" name="Has Logo" value="No - Need Logo" />No – I need a logo</label>
+              <label class="choice"><input type="radio" name="Has Logo" value="No - Text Only" />No – Text only is fine</label>
+            </div>
+            <p class="error-msg">Please choose an option.</p></div>
+          <div><label class="label" for="style">Brand Style / Color Palette</label>
+            <textarea id="style" class="field" rows="3" name="Brand Style" placeholder="e.g. Modern & minimal, blush pink + gold, hex #F4C2C2"></textarea></div>
+          <div><label class="label" for="inspo">Inspiration Websites</label>
+            <textarea id="inspo" class="field" rows="3" name="Inspiration Sites" placeholder="Links to sites you love and what you like about them"></textarea></div>
+        </div>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="step" data-step="5">
+        <h2 class="text-xl font-semibold mb-1">Files & Final Details</h2>
+        <p class="text-ios-gray text-[15px] mb-5">Almost done!</p>
+        <div class="bg-white/60 rounded-2xl p-4 shadow-sm space-y-4 border border-black/5">
+          <div><span class="label">Upload Files</span>
+            <label for="files" class="flex flex-col items-center justify-center gap-1 min-h-[110px] rounded-xl border-2 border-dashed border-ios-sep bg-white cursor-pointer active:scale-[.99] transition">
+              <svg class="w-8 h-8 text-ios-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/></svg>
+              <span class="text-ios-blue font-medium">Tap to choose files</span>
+              <span class="text-xs text-ios-gray">Logos, photos, docs (max 10 MB total)</span>
+            </label>
+            <input id="files" type="file" name="Attachments" multiple class="hidden" accept="image/*,.pdf,.doc,.docx,.ai,.eps,.svg,.zip" />
+            <ul id="fileList" class="mt-2 space-y-1 text-sm text-ios-gray"></ul>
+            <p class="error-msg" id="fileErr">Total file size exceeds 10 MB.</p></div>
+          <div><label class="label" for="launch">Target Launch Date</label>
+            <input id="launch" class="field" type="date" name="Target Launch Date" /></div>
+          <div><label class="label" for="notes">Additional Notes</label>
+            <textarea id="notes" class="field" rows="4" name="Additional Notes" placeholder="Anything else we should know?"></textarea></div>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <!-- Sticky bottom nav -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 px-4 pt-3 bg-ios-bg/85 backdrop-blur-xl border-t border-black/5" style="padding-bottom:calc(12px + env(safe-area-inset-bottom))">
+    <div class="max-w-xl mx-auto flex gap-3">
+      <button type="button" id="backBtn" class="flex-1 min-h-[50px] rounded-2xl bg-white text-ios-blue font-semibold text-[17px] shadow-sm border border-black/5 active:scale-[.97] transition disabled:opacity-40" disabled>Back</button>
+      <button type="button" id="nextBtn" class="flex-[2] min-h-[50px] rounded-2xl bg-ios-blue text-white font-semibold text-[17px] shadow-md shadow-blue-500/30 active:scale-[.97] transition">Next</button>
+    </div>
+  </nav>
+
+<script>
+(() => {
+  const TOTAL = 5;
+  let currentStep = 1;
+  const form = document.getElementById('intakeForm');
+  const steps = [...document.querySelectorAll('.step')];
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const bar = document.getElementById('progressBar');
+  const stepLabel = document.getElementById('stepLabel');
+  const pctLabel = document.getElementById('pctLabel');
+  const dots = document.getElementById('dots');
+  const titles = ['Contact','Domain','Goals','Brand','Files'];
+  const MAX_BYTES = 10 * 1024 * 1024;
+  const domainRe = /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i;
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  // Step dots
+  titles.forEach((t, i) => {
+    dots.insertAdjacentHTML('beforeend',
+      `<div class="flex flex-col items-center gap-1 flex-1" data-dot="${i+1}">
+         <span class="w-7 h-7 rounded-full grid place-items-center text-xs font-semibold transition-all duration-300"></span>
+         <span class="text-[11px] text-ios-gray">${t}</span></div>`);
+  });
+
+  function render(dir = 'fwd') {
+    steps.forEach(s => {
+      const on = +s.dataset.step === currentStep;
+      s.classList.toggle('active', on);
+      s.classList.toggle('back', on && dir === 'back');
+    });
+    const pct = Math.round(currentStep / TOTAL * 100);
+    bar.style.width = pct + '%';
+    stepLabel.textContent = `Step ${currentStep} of ${TOTAL}`;
+    pctLabel.textContent = `${pct}% Complete`;
+    backBtn.disabled = currentStep === 1;
+    nextBtn.textContent = currentStep === TOTAL ? 'Submit' : 'Next';
+    nextBtn.classList.toggle('bg-ios-green', currentStep === TOTAL);
+    nextBtn.classList.toggle('bg-ios-blue', currentStep !== TOTAL);
+    document.querySelectorAll('[data-dot]').forEach(d => {
+      const n = +d.dataset.dot, c = d.firstElementChild;
+      c.className = 'w-7 h-7 rounded-full grid place-items-center text-xs font-semibold transition-all duration-300 ' +
+        (n < currentStep ? 'bg-ios-green text-white' : n === currentStep ? 'bg-ios-blue text-white scale-110' : 'bg-black/10 text-ios-gray');
+      c.textContent = n < currentStep ? '✓' : n;
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---------- Validation ----------
+  const errFor = el => el.closest('div')?.querySelector('.error-msg');
+  function setErr(el, bad) {
+    el.classList.toggle('invalid', bad);
+    errFor(el)?.classList.toggle('show', bad);
+  }
+  function validField(el) {
+    if (el.disabled) return true;
+    const v = el.value.trim();
+    const required = el.required || el.hasAttribute('data-req-branch');
+    if (required && !v) return false;
+    if (!v) return true;
+    if (el.type === 'email') return emailRe.test(v);
+    if (el.type === 'tel') return v.replace(/\D/g, '').length >= 7;
+    if (el.hasAttribute('data-req-branch') || /Domain \d/.test(el.name)) return domainRe.test(v.replace(/^https?:\/\//,'').replace(/^www\./,''));
+    return true;
+  }
+  function validateStep(n) {
+    const sec = steps[n - 1];
+    let ok = true, firstBad = null;
+    sec.querySelectorAll('input.field, select.field, textarea.field').forEach(el => {
+      const good = validField(el);
+      setErr(el, !good);
+      if (!good) { ok = false; firstBad ??= el; }
+    });
+    sec.querySelectorAll('[data-group]').forEach(g => {
+      const inputs = g.querySelectorAll('input');
+      const needs = inputs[0].type === 'radio' ? inputs[0].required : g.dataset.min;
+      if (!needs) return;
+      const good = [...inputs].some(i => i.checked);
+      g.querySelector('.error-msg').classList.toggle('show', !good);
+      if (!good) { ok = false; firstBad ??= inputs[0]; }
+    });
+    if (n === 5 && !checkFiles()) { ok = false; }
+    if (firstBad) { firstBad.focus({ preventScroll: true }); firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    if (!ok && navigator.vibrate) navigator.vibrate(30);
+    return ok;
+  }
+
+  // Live validation: clear/flag as the user types
+  form.addEventListener('input', e => {
+    const el = e.target;
+    if (el.matches('.field') && el.classList.contains('invalid')) setErr(el, !validField(el));
+    const g = el.closest('[data-group]');
+    if (g) g.querySelector('.error-msg')?.classList.remove('show');
+  });
+  form.addEventListener('blur', e => {
+    const el = e.target;
+    if (el.matches?.('.field') && el.value.trim()) setErr(el, !validField(el));
+  }, true);
+
+  // ---------- Conditional domain logic ----------
+  const yesB = document.getElementById('branchYes');
+  const noB = document.getElementById('branchNo');
+  function toggleBranch(branch, on) {
+    branch.classList.toggle('open', on);
+    branch.setAttribute('aria-hidden', !on);
+    branch.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = !on;
+      if (!on) setErr(el, false);
+    });
+  }
+  form.querySelectorAll('input[name="Owns Domain"]').forEach(r =>
+    r.addEventListener('change', () => {
+      toggleBranch(yesB, r.value === 'Yes' && r.checked);
+      toggleBranch(noB, r.value === 'No' && r.checked);
+    }));
+
+  // ---------- Files ----------
+  const fileInput = document.getElementById('files');
+  const fileList = document.getElementById('fileList');
+  const fileErr = document.getElementById('fileErr');
+  function checkFiles() {
+    const total = [...fileInput.files].reduce((a, f) => a + f.size, 0);
+    const bad = total > MAX_BYTES;
+    fileErr.classList.toggle('show', bad);
+    return !bad;
+  }
+  fileInput.addEventListener('change', () => {
+    fileList.innerHTML = [...fileInput.files].map(f =>
+      `<li class="flex justify-between bg-white rounded-lg px-3 py-2 border border-black/5"><span class="truncate mr-2 text-black">📎 ${f.name.replace(/</g,'&lt;')}</span><span>${(f.size/1024/1024).toFixed(2)} MB</span></li>`).join('');
+    checkFiles();
+  });
+
+  // Min launch date = today
+  document.getElementById('launch').min = new Date().toISOString().split('T')[0];
+
+  // ---------- Navigation ----------
+  // Tell FormSubmit where to send the user after submitting (same page + ?submitted=1)
+  document.getElementById('nextUrl').value =
+    location.origin + location.pathname + '?submitted=1';
+
+  nextBtn.addEventListener('click', () => {
+    if (!validateStep(currentStep)) return;
+
+    if (currentStep < TOTAL) {
+      currentStep++;
+      render('fwd');
+      return;
+    }
+
+    // FINAL STEP: let the browser submit the form normally to FormSubmit.co.
+    // HTMLFormElement.submit() skips any 'submit' listeners, so nothing can
+    // call preventDefault() on it. Don't disable the fields themselves:
+    // disabled fields are left out of the POST.
+    nextBtn.disabled = true;
+    backBtn.disabled = true;
+    nextBtn.innerHTML =
+      '<span class="inline-block w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin align-middle"></span>';
+    HTMLFormElement.prototype.submit.call(form);
+  });
+
+  backBtn.addEventListener('click', () => {
+    if (currentStep > 1) { currentStep--; render('back'); }
+  });
+
+  // Enter moves to the next step instead of submitting early (textareas still get new lines)
+  form.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      nextBtn.click();
+    }
+  });
+
+  // ---------- Success screen (shown AFTER FormSubmit sends the user back) ----------
+  if (new URLSearchParams(location.search).get('submitted') === '1') {
+    document.querySelector('header').style.display = 'none';
+    document.querySelector('nav').style.display = 'none';
+    document.querySelector('main').innerHTML = `
+      <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
+        <div class="w-20 h-20 rounded-full bg-ios-green grid place-items-center text-white text-4xl mb-5">✓</div>
+        <h2 class="text-2xl font-bold mb-2">Thank you!</h2>
+        <p class="text-ios-gray text-[15px]">Your intake form was received. We'll be in touch shortly.</p>
+      </div>`;
+    return;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
